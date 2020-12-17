@@ -68,7 +68,7 @@ public class CreateInsertion {
                         if(!samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1])) {
                             continue;
                         }
-                        System.out.println(String.format("[%5d/%5d] %s : %s", matchedReadCount++, samRecords.size(), fastqFileName, samRecord.qname));
+                        System.out.println(String.format("[%5d] %s : %s", ++matchedReadCount, fastqFileName, samRecord.qname));
                         String newSequence = String.format("%s%s%s",
                             samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
                             samRecord.insert.sequence,
@@ -111,6 +111,10 @@ public class CreateInsertion {
                         for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
                         for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
                         System.out.println();
+                        fastqWriter.println(fastqRecord[0]);
+                        fastqWriter.println(newSequence);
+                        fastqWriter.println(fastqRecord[3]);
+                        fastqWriter.println(fastqRecord[4]);
                     }
                 }
             }
