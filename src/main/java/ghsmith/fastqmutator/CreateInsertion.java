@@ -66,7 +66,7 @@ public class CreateInsertion {
                         if(!samRecord.seq.equals(fastqRecord[1])) {
                             continue;
                         }
-                        System.out.println(String.format("%s : match in %s", samRecord.qname, fastqFileName));
+                        System.out.println(String.format("%s : %s", fastqFileName, samRecord.qname));
                         assert fastqRecord[1].length() == samRecord.simpleLength();
                         String newSequence = String.format("%s%s%s",
                             fastqRecord[1].substring(0, samRecord.insert.position - samRecord.pos),
@@ -78,27 +78,31 @@ public class CreateInsertion {
                             samRecord.isReverseComplement() ? reverseComplement(samRecord.insert.sequence) : samRecord.insert.sequence,
                             fastqRecord[1].substring(samRecord.insert.position - samRecord.pos)
                         );
-                        String oldSequenceForPrinting = String.format("%s%l$" + samRecord.insert.sequence.length() + "s%s",
+                        String oldSequenceForPrinting = String.format("%s%" + samRecord.insert.sequence.length() + "s%s",
                             fastqRecord[1].substring(0, samRecord.insert.position - samRecord.pos),
                             " ",
                             fastqRecord[1].substring(samRecord.insert.position - samRecord.pos)
                         );
+                        Integer trimLeft = 0;
+                        Integer trimRight = 0;
                         while(newSequence.length() > samRecord.simpleLength()) {
                             if(Math.random() < 0.5) {
                                 newSequence = newSequence.substring(1);
-                                newSequenceForPrinting = newSequenceForPrinting.substring(1);
-                                oldSequenceForPrinting = oldSequenceForPrinting.substring(1);
+                                trimLeft++;
                             }
                             else {
                                 newSequence = newSequence.substring(0, newSequence.length() - 1);
-                                newSequenceForPrinting = newSequenceForPrinting.substring(0, newSequenceForPrinting.length() - 1);
-                                oldSequenceForPrinting = newSequenceForPrinting.substring(0, oldSequenceForPrinting.length() - 1);
+                                trimRight++;
                             }
                         }
                         System.out.println(String.format("...position: %s", samRecord.pos));
                         System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
                         System.out.println(String.format("...old seq : %s", oldSequenceForPrinting));
                         System.out.println(String.format("...new new : %s", newSequenceForPrinting));
+                        System.out.print  (              "...trimming: ");
+                        for(int x = 0; x < trimLeft; x++) { System.out.print("-"); }
+                        for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
+                        for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
                     }
                 }
             }
@@ -117,7 +121,7 @@ public class CreateInsertion {
     }
     public static String reverseComplement(String sequence) {
         StringBuilder reverseComplementSequence = new StringBuilder();
-        for(int x = sequence.length() - 1; x >= 0; x++) {
+        for(int x = sequence.length() - 1; x >= 0; x--) {
             assert complementMap.keySet().contains(sequence.charAt(x));
             reverseComplementSequence.append(complementMap.get(sequence.charAt(x)));
         }
