@@ -71,18 +71,34 @@ public class CreateInsertion {
                         String newSequence = String.format("%s%s%s",
                             fastqRecord[1].substring(0, samRecord.insert.position - samRecord.pos),
                             samRecord.isReverseComplement() ? reverseComplement(samRecord.insert.sequence) : samRecord.insert.sequence,
-                            fastqRecord[1].substring(samRecord.insert.position)
+                            fastqRecord[1].substring(samRecord.insert.position - samRecord.pos)
+                        );
+                        String newSequenceForPrinting = String.format("%s%s%s",
+                            fastqRecord[1].substring(0, samRecord.insert.position - samRecord.pos),
+                            samRecord.isReverseComplement() ? reverseComplement(samRecord.insert.sequence) : samRecord.insert.sequence,
+                            fastqRecord[1].substring(samRecord.insert.position - samRecord.pos)
+                        );
+                        String oldSequenceForPrinting = String.format("%s%l$" + samRecord.insert.sequence.length() + "s%s",
+                            fastqRecord[1].substring(0, samRecord.insert.position - samRecord.pos),
+                            " ",
+                            fastqRecord[1].substring(samRecord.insert.position - samRecord.pos)
                         );
                         while(newSequence.length() > samRecord.simpleLength()) {
                             if(Math.random() < 0.5) {
                                 newSequence = newSequence.substring(1);
+                                newSequenceForPrinting = newSequenceForPrinting.substring(1);
+                                oldSequenceForPrinting = oldSequenceForPrinting.substring(1);
                             }
                             else {
                                 newSequence = newSequence.substring(0, newSequence.length() - 1);
+                                newSequenceForPrinting = newSequenceForPrinting.substring(0, newSequenceForPrinting.length() - 1);
+                                oldSequenceForPrinting = newSequenceForPrinting.substring(0, oldSequenceForPrinting.length() - 1);
                             }
                         }
-                        System.out.println(String.format("...old: %s", fastqRecord[1]));
-                        System.out.println(String.format("...new: %s", newSequence));
+                        System.out.println(String.format("...position: %s", samRecord.pos));
+                        System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
+                        System.out.println(String.format("...old seq : %s", oldSequenceForPrinting));
+                        System.out.println(String.format("...new new : %s", newSequenceForPrinting));
                     }
                 }
             }
