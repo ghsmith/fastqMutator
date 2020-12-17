@@ -52,6 +52,8 @@ public class CreateInsertion {
         }
         
         String fastqFileName = args[0];
+        Boolean read1File = fastqFileName.contains("_R1_");
+        Boolean read2File = fastqFileName.contains("_R2_");
         
         {
             int matchedReadCount = 0;
@@ -63,58 +65,59 @@ public class CreateInsertion {
                 fastqRecord[2] = fastqReader.readLine();
                 fastqRecord[3] = fastqReader.readLine();
                 for(SamRecord samRecord : samRecords) {
-                    if(fastqRecord[0].substring(1, fastqRecord[0].indexOf(' ')).equals(samRecord.qname)) {
-                        if(!samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1])) {
-                            continue;
-                        }
-                        System.out.println(String.format("[%5d] %s : %s", ++matchedReadCount, fastqFileName, samRecord.qname));
-                        String newSequence = String.format("%s%s%s",
-                            samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
-                            samRecord.insert.sequence,
-                            samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
-                        );
-                        newSequence = samRecord.isReverseComplement() ? reverseComplement(newSequence) : newSequence;
-                        String newSequenceForPrinting = String.format("%s%s%s",
-                            samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
-                            samRecord.insert.sequence,
-                            samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
-                        );
-                        newSequenceForPrinting = samRecord.isReverseComplement() ? reverseComplement(newSequenceForPrinting) : newSequenceForPrinting;
-                        String oldSequenceForPrinting = String.format("%s%" + samRecord.insert.sequence.length() + "s%s",
-                            samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
-                            " ",
-                            samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
-                        );
-                        oldSequenceForPrinting = samRecord.isReverseComplement() ? reverseComplement(oldSequenceForPrinting) : oldSequenceForPrinting;
-                        Integer trimLeft = 0;
-                        Integer trimRight = 0;
-                        while(newSequence.length() > samRecord.simpleLength()) {
-                            if(Math.random() < 0.5) {
-                                newSequence = newSequence.substring(1);
-                                trimLeft++;
+                    if((samRecord.isFirstSegment() && read1File) || (samRecord.isLastSegment() && read2File)) {
+                        if(fastqRecord[0].substring(1, fastqRecord[0].indexOf(' ')).equals(samRecord.qname)) {
+                            assert samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1]);
+                            System.out.println(String.format("[%5d] %s : %s", ++matchedReadCount, fastqFileName, samRecord.qname));
+                            String newSequence = String.format("%s%s%s",
+                                samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
+                                samRecord.insert.sequence,
+                                samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
+                            );
+                            newSequence = samRecord.isReverseComplement() ? reverseComplement(newSequence) : newSequence;
+                            String newSequenceForPrinting = String.format("%s%s%s",
+                                samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
+                                samRecord.insert.sequence,
+                                samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
+                            );
+                            newSequenceForPrinting = samRecord.isReverseComplement() ? reverseComplement(newSequenceForPrinting) : newSequenceForPrinting;
+                            String oldSequenceForPrinting = String.format("%s%" + samRecord.insert.sequence.length() + "s%s",
+                                samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
+                                " ",
+                                samRecord.seq.substring(samRecord.insert.position - samRecord.pos)
+                            );
+                            oldSequenceForPrinting = samRecord.isReverseComplement() ? reverseComplement(oldSequenceForPrinting) : oldSequenceForPrinting;
+                            Integer trimLeft = 0;
+                            Integer trimRight = 0;
+                            while(newSequence.length() > samRecord.simpleLength()) {
+                                if(Math.random() < 0.5) {
+                                    newSequence = newSequence.substring(1);
+                                    trimLeft++;
+                                }
+                                else {
+                                    newSequence = newSequence.substring(0, newSequence.length() - 1);
+                                    trimRight++;
+                                }
                             }
-                            else {
-                                newSequence = newSequence.substring(0, newSequence.length() - 1);
-                                trimRight++;
-                            }
+                            System.out.println(String.format("...rname    : %s", samRecord.rname));
+                            System.out.println(String.format("...position : %s", samRecord.pos));
+                            System.out.println(String.format("...rev comp : %s", samRecord.isReverseComplement()));
+                            System.out.println(String.format("...first    : %s", samRecord.isFirstSegment()));
+                            System.out.println(String.format("...last     : %s", samRecord.isLastSegment()));
+                            System.out.println(String.format("...SAM seq  : %s", samRecord.seq));
+                            System.out.println(String.format("...FQ seq   : %s", fastqRecord[1]));
+                            System.out.println(String.format("...old seq  : %s", oldSequenceForPrinting));
+                            System.out.println(String.format("...new seq  : %s", newSequenceForPrinting));
+                            System.out.print  (              "...trimming : ");
+                            for(int x = 0; x < trimLeft; x++) { System.out.print("-"); }
+                            for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
+                            for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
+                            System.out.println();
+                            fastqWriter.println(fastqRecord[0]);
+                            fastqWriter.println(newSequence);
+                            fastqWriter.println(fastqRecord[2]);
+                            fastqWriter.println(fastqRecord[3]);
                         }
-                        System.out.println(String.format("...SAM seq   : %s", samRecord.seq));
-                        System.out.println(String.format("...FQ seq    : %s", fastqRecord[1]));
-                        System.out.println(String.format("...position  : %s", samRecord.pos));
-                        System.out.println(String.format("...rev comp  : %s", samRecord.isReverseComplement()));
-                        System.out.println(String.format("...first     : %s", samRecord.isFirstSegment()));
-                        System.out.println(String.format("...last      : %s", samRecord.isLastSegment()));
-                        System.out.println(String.format("...old FQ seq: %s", oldSequenceForPrinting));
-                        System.out.println(String.format("...new FQ seq: %s", newSequenceForPrinting));
-                        System.out.print  (              "...trimming  : ");
-                        for(int x = 0; x < trimLeft; x++) { System.out.print("-"); }
-                        for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
-                        for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
-                        System.out.println();
-                        fastqWriter.println(fastqRecord[0]);
-                        fastqWriter.println(newSequence);
-                        fastqWriter.println(fastqRecord[2]);
-                        fastqWriter.println(fastqRecord[3]);
                     }
                 }
             }
