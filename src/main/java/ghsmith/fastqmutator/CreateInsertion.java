@@ -63,7 +63,7 @@ public class CreateInsertion {
                 for(SamRecord samRecord : samRecords) {
                     if(fastqRecord[0].substring(1).startsWith(samRecord.qname)) { // substring accounts for "@" at beginning of line
                         // the SAM record is ambiguous w.r.t. R1/R2
-                        if(!samRecord.seq.equals(fastqRecord[1])) {
+                        if(!samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1])) {
                             continue;
                         }
                         System.out.println(String.format("%s : %s", fastqFileName, samRecord.qname));
@@ -103,6 +103,7 @@ public class CreateInsertion {
                         for(int x = 0; x < trimLeft; x++) { System.out.print("-"); }
                         for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
                         for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
+                        System.out.println();
                     }
                 }
             }
