@@ -37,7 +37,7 @@ public class CreateInsertion {
                     continue;
                 }
                 if(!samRecord.cigar.matches("[0-9]*M")) {
-                    System.out.println(String.format("read  %s : rejected (%s)", samRecord.qname, "CIGAR = " + samRecord.cigar));
+                    System.out.println(String.format("read %s : rejected (%s)", samRecord.qname, "CIGAR = " + samRecord.cigar));
                     continue;
                 }
                 if(samRecord.insert == null) {
@@ -63,8 +63,7 @@ public class CreateInsertion {
                 fastqRecord[2] = fastqReader.readLine();
                 fastqRecord[3] = fastqReader.readLine();
                 for(SamRecord samRecord : samRecords) {
-                    if(fastqRecord[0].substring(1).startsWith(samRecord.qname)) { // substring accounts for "@" at beginning of line
-                        // the SAM record is ambiguous w.r.t. R1/R2
+                    if(fastqRecord[0].split(" ")[0].equals("@" + samRecord.qname)) {
                         if(!samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1])) {
                             continue;
                         }
@@ -99,7 +98,8 @@ public class CreateInsertion {
                                 trimRight++;
                             }
                         }
-                        System.out.println(String.format("...sequence: %s", fastqRecord[1]));
+                        System.out.println(String.format("...SAM seq : %s", samRecord.seq));
+                        System.out.println(String.format("...FQ seq  : %s", fastqRecord[1]));
                         System.out.println(String.format("...position: %s", samRecord.pos));
                         System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
                         System.out.println(String.format("...first   : %s", samRecord.isFirstSegment()));
@@ -113,8 +113,8 @@ public class CreateInsertion {
                         System.out.println();
                         fastqWriter.println(fastqRecord[0]);
                         fastqWriter.println(newSequence);
+                        fastqWriter.println(fastqRecord[2]);
                         fastqWriter.println(fastqRecord[3]);
-                        fastqWriter.println(fastqRecord[4]);
                     }
                 }
             }
