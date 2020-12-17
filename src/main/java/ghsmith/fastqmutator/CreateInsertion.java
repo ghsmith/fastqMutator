@@ -16,6 +16,11 @@ import java.util.List;
  */
 public class CreateInsertion {
     
+    public static List<Insert> inserts = new ArrayList<>();
+    static {
+        inserts.add(new Insert("chr7", 140534507, "ATCTTTTTT"));
+    }
+    
     public static void main(String[] args) throws IOException {
 
         List<SamRecord> samRecords = new ArrayList<>();
@@ -24,7 +29,7 @@ public class CreateInsertion {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String samLine;
             while((samLine = reader.readLine()) != null) {
-                SamRecord samRecord = new SamRecord(samLine);
+                SamRecord samRecord = new SamRecord(samLine, inserts);
                 if(!samRecord.isProperlyAligned()) {
                     System.out.println(String.format("%s : rejected (%s)", samRecord.qname, "!isProperlyAligned"));
                     continue;
@@ -33,7 +38,7 @@ public class CreateInsertion {
                     System.out.println(String.format("%s : rejected (%s)", samRecord.qname, "CIGAR = " + samRecord.cigar));
                     continue;
                 }
-                System.out.println(String.format("%s : accepted", samRecord.qname));
+                System.out.println(String.format("%s : accepted for insert %s", samRecord.qname, samRecord.insert));
                 samRecords.add(samRecord);
             }
         }
@@ -49,12 +54,12 @@ public class CreateInsertion {
                 fastqRecord[2] = fastqReader.readLine();
                 fastqRecord[3] = fastqReader.readLine();
                 for(SamRecord samRecord : samRecords) {
-                    if(fastqRecord[0].startsWith(samRecord.qname)) {
+                    if(fastqRecord[0].substring(1).startsWith(samRecord.qname)) { // substring accounts for "@" at beginning of line
                         // the SAM record is ambiguous w.r.t. R1/R2
                         if(!samRecord.seq.equals(fastqRecord[1])) {
                             continue;
                         }
-                        System.out.println(String.format("%s : match in %s", fastqFileName));
+                        System.out.println(String.format("%s : match in %s", samRecord.qname, fastqFileName));
                     }
                 }
             }

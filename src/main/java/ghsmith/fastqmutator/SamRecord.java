@@ -1,5 +1,7 @@
 package ghsmith.fastqmutator;
 
+import java.util.List;
+
 /**
  *
  * @author ghsmith
@@ -13,7 +15,9 @@ public class SamRecord {
     public String cigar;
     public String seq;
     
-    public SamRecord(String samLine) {
+    public Insert insert;
+    
+    public SamRecord(String samLine, List<Insert> inserts) {
         String[] fields = samLine.split("\t");
         qname = fields[0];
         flag = Integer.valueOf(fields[1]);
@@ -21,6 +25,16 @@ public class SamRecord {
         pos = Integer.valueOf(fields[3]);
         cigar = fields[5];
         seq = fields[9];
+        for(Insert insert : inserts) {
+            if(
+                this.simpleLength() != null
+                && insert.chromosome.equals(this.rname)
+                && insert.position >= this.pos
+                && insert.position < this.pos + this.simpleLength()
+            ) {
+                this.insert = insert;
+            }
+        }
     }
     
     public boolean isProperlyAligned() {
@@ -29,6 +43,13 @@ public class SamRecord {
 
     public boolean isReverseComplement() {
         return (flag & 0x10) > 0;
+    }
+    
+    public Integer simpleLength() {
+        if(cigar.matches("[0-9]*M")) {
+            return Integer.valueOf(cigar.substring(0, cigar.length() - 1));
+        }
+        return null;
     }
     
 }
