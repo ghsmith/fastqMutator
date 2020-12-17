@@ -20,7 +20,7 @@ public class CreateInsertion {
     
     public static List<Insert> inserts = new ArrayList<>();
     static {
-        inserts.add(new Insert("chr7", 140534507, "ATCTTTTTT"));
+        inserts.add(new Insert("chr7", 140534508, "ATCTTTTTT"));
     }
     
     public static void main(String[] args) throws IOException {
@@ -99,16 +99,14 @@ public class CreateInsertion {
                                     trimRight++;
                                 }
                             }
-                            System.out.println(String.format("...rname    : %s", samRecord.rname));
-                            System.out.println(String.format("...position : %s", samRecord.pos));
-                            System.out.println(String.format("...rev comp : %s", samRecord.isReverseComplement()));
-                            System.out.println(String.format("...first    : %s", samRecord.isFirstSegment()));
-                            System.out.println(String.format("...last     : %s", samRecord.isLastSegment()));
-                            System.out.println(String.format("...SAM seq  : %s", samRecord.seq));
-                            System.out.println(String.format("...FQ seq   : %s", fastqRecord[1]));
-                            System.out.println(String.format("...old seq  : %s", oldSequenceForPrinting));
-                            System.out.println(String.format("...new seq  : %s", newSequenceForPrinting));
-                            System.out.print  (              "...trimming : ");
+                            System.out.println(String.format("...rname   : %s", samRecord.rname));
+                            System.out.println(String.format("...position: %s", samRecord.pos));
+                            System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
+                            System.out.println(String.format("...first   : %s", samRecord.isFirstSegment()));
+                            System.out.println(String.format("...last    : %s", samRecord.isLastSegment()));
+                            System.out.println(String.format("...old seq : %s", oldSequenceForPrinting));
+                            System.out.println(String.format("...new seq : %s", newSequenceForPrinting));
+                            System.out.print  (              "...trimming: ");
                             for(int x = 0; x < trimLeft; x++) { System.out.print("-"); }
                             for(int x = 0; x < samRecord.simpleLength(); x++) { System.out.print("+"); }
                             for(int x = 0; x < trimRight; x++) { System.out.print("-"); }
