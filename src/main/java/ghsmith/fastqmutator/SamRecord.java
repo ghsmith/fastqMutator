@@ -44,6 +44,14 @@ public class SamRecord {
     public boolean isReverseComplement() {
         return (flag & 0x10) > 0;
     }
+
+    public boolean isFirstSegment() {
+        return (flag & 0x40) > 0;
+    }
+
+    public boolean isLastSegment() {
+        return (flag & 0x80) > 0;
+    }
     
     public Integer simpleLength() {
         if(cigar.matches("[0-9]*M")) {

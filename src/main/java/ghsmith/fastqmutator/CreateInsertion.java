@@ -33,26 +33,28 @@ public class CreateInsertion {
             while((samLine = reader.readLine()) != null) {
                 SamRecord samRecord = new SamRecord(samLine, inserts);
                 if(!samRecord.isProperlyAligned()) {
-                    System.out.println(String.format("%s : rejected (%s)", samRecord.qname, "!isProperlyAligned"));
+                    System.out.println(String.format("read %s : rejected (%s)", samRecord.qname, "!isProperlyAligned"));
                     continue;
                 }
                 if(!samRecord.cigar.matches("[0-9]*M")) {
-                    System.out.println(String.format("%s : rejected (%s)", samRecord.qname, "CIGAR = " + samRecord.cigar));
+                    System.out.println(String.format("read  %s : rejected (%s)", samRecord.qname, "CIGAR = " + samRecord.cigar));
                     continue;
                 }
                 if(samRecord.insert == null) {
-                    System.out.println(String.format("%s : rejected (%s)", samRecord.qname, "no applicable insert found"));
+                    System.out.println(String.format("read %s : rejected (%s)", samRecord.qname, "no applicable insert found"));
                     continue;
                 }
                 assert samRecord.simpleLength() == samRecord.seq.length();
-                System.out.println(String.format("%s : accepted for insert %s", samRecord.qname, samRecord.insert));
+                System.out.println(String.format("read %s : accepted for insert %s", samRecord.qname, samRecord.insert));
                 samRecords.add(samRecord);
             }
+            System.out.println(String.format("%d reads accepted", samRecords.size()));
         }
         
         String fastqFileName = args[0];
         
         {
+            int matchedReadCount = 0;
             BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName));
             PrintWriter fastqWriter = new PrintWriter(new FileWriter(new File(fastqFileName.replaceAll(".fastq$", ".mutated.fastq"))));
             String[] fastqRecord = new String[4];
@@ -66,7 +68,7 @@ public class CreateInsertion {
                         if(!samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1])) {
                             continue;
                         }
-                        System.out.println(String.format("%s : %s", fastqFileName, samRecord.qname));
+                        System.out.println(String.format("[%5d/%5d] %s : %s", matchedReadCount++, samRecords.size(), fastqFileName, samRecord.qname));
                         String newSequence = String.format("%s%s%s",
                             samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
                             samRecord.insert.sequence,
@@ -97,8 +99,11 @@ public class CreateInsertion {
                                 trimRight++;
                             }
                         }
+                        System.out.println(String.format("...sequence: %s", fastqRecord[1]));
                         System.out.println(String.format("...position: %s", samRecord.pos));
                         System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
+                        System.out.println(String.format("...first   : %s", samRecord.isFirstSegment()));
+                        System.out.println(String.format("...last    : %s", samRecord.isLastSegment()));
                         System.out.println(String.format("...old seq : %s", oldSequenceForPrinting));
                         System.out.println(String.format("...new new : %s", newSequenceForPrinting));
                         System.out.print  (              "...trimming: ");
