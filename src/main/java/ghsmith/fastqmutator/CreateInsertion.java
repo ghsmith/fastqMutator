@@ -1,6 +1,7 @@
 package ghsmith.fastqmutator;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -64,8 +65,8 @@ public class CreateInsertion {
                     try {
                         Boolean read1File = fastqFileName.contains("_R1_");
                         Boolean read2File = fastqFileName.contains("_R2_");
-                        BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName));
-                        PrintWriter fastqWriter = new PrintWriter(new FileWriter(new File("mutated-" + fastqFileName)));
+                        BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName), 536870912);
+                        BufferedWriter fastqWriter = new BufferedWriter(new FileWriter(new File("mutated-" + fastqFileName)), 536870912);
                         String[] fastqRecord = new String[4];
                         while((fastqRecord[0] = fastqReader.readLine()) != null) {
                             fastqRecord[1] = fastqReader.readLine();
@@ -124,10 +125,10 @@ public class CreateInsertion {
                                     }
                                 }
                             }
-                            fastqWriter.println(fastqRecord[0]);
-                            fastqWriter.println(fastqRecord[1]);
-                            fastqWriter.println(fastqRecord[2]);
-                            fastqWriter.println(fastqRecord[3]);
+                            fastqWriter.write(fastqRecord[0]); fastqWriter.newLine();
+                            fastqWriter.write(fastqRecord[1]); fastqWriter.newLine();
+                            fastqWriter.write(fastqRecord[2]); fastqWriter.newLine();
+                            fastqWriter.write(fastqRecord[3]); fastqWriter.newLine();
                         }
                         fastqReader.close();
                         fastqWriter.close();
