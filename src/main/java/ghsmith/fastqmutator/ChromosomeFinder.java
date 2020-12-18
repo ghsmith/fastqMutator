@@ -14,7 +14,7 @@ import java.util.Map;
 public class ChromosomeFinder {
     
     public String genomeFileName;
-    public Map<String, Chromosome> chromosomeMap = new HashMap<>();
+    public Map<String, Chromosome> chromosomeMap = null;
 
     public ChromosomeFinder(String genomeFileName) {
         this.genomeFileName = genomeFileName;
@@ -22,6 +22,7 @@ public class ChromosomeFinder {
     
     public Map<String, Chromosome> getChromosomeMap() throws FileNotFoundException, IOException {
         if(chromosomeMap == null) {
+            chromosomeMap = new HashMap<>();
             BufferedReader faReader = new BufferedReader(new FileReader(genomeFileName), 52428800);
             Chromosome chromosome = null;
             StringBuilder sequence = null;
@@ -33,6 +34,7 @@ public class ChromosomeFinder {
                     }
                     chromosome = new Chromosome(faLine.substring(1));
                     chromosomeMap.put(chromosome.name, chromosome);
+                    sequence = new StringBuilder();
                     continue;
                 }
                 sequence.append(faLine);

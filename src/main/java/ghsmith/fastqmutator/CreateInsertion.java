@@ -26,7 +26,7 @@ public class CreateInsertion {
     public static void main(final String[] args) throws IOException {
 
         ChromosomeFinder chromosomeFinder = new ChromosomeFinder("/u02/tso500-ruo-2.1.0.60/TSO500_RUO_LocalApp/resources/genomes/hg19_hardPAR/genome.fa");
-        System.out.println(chromosomeFinder.get("chr7")[200]);
+        System.out.println(chromosomeFinder.getChromosomeMap().get("chr7").sequence[200]);
         
         List<SamRecord> samRecords = new ArrayList<>();
         
