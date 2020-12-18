@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,9 @@ public class CreateInsertion {
     
     public static void main(final String[] args) throws IOException {
 
+        ChromosomeFinder chromosomeFinder = new ChromosomeFinder("/u02/tso500-ruo-2.1.0.60/TSO500_RUO_LocalApp/resources/genomes/hg19_hardPAR/genome.fa");
+        System.out.println(chromosomeFinder.get("chr7")[200]);
+        
         List<SamRecord> samRecords = new ArrayList<>();
         
         {
@@ -81,6 +83,7 @@ public class CreateInsertion {
                                 ) {
                                     if(fastqRecord[0].startsWith(samRecord.qname, 1)) { // the "1" accounts for the "@" in the FASTQ that is not in the SAM
                                         assert samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1]);
+                                        samRecord.used = true;
                                         String newSequence = String.format("%s%s%s",
                                             samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
                                             samRecord.insert.sequence,
@@ -128,7 +131,6 @@ public class CreateInsertion {
                                             System.out.println();
                                         }
                                         fastqRecord[1] = newSequence;
-                                        samRecord.used = true;
                                     }
                                 }
                             }
