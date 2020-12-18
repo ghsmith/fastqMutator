@@ -63,7 +63,7 @@ public class CreateInsertion {
                 @Override
                 public void run() {
                     try {
-                        String fileLane = fastqFileName.split("_")[2].replaceAll("L000", "");
+                        String fileLane = fastqFileName.split("_")[2].replaceAll("L00", "");
                         Boolean read1File = fastqFileName.contains("_R1_");
                         Boolean read2File = fastqFileName.contains("_R2_");
                         BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName), 52428800);
@@ -75,7 +75,8 @@ public class CreateInsertion {
                             fastqRecord[3] = fastqReader.readLine();
                             for(SamRecord samRecord : samRecords) {
                                 if(
-                                    samRecord.lane.equals(fileLane)
+                                    !samRecord.used
+                                    && samRecord.lane.equals(fileLane)
                                     && ((samRecord.isFirstSegment() && read1File) || (samRecord.isLastSegment() && read2File))
                                 ) {
                                     if(fastqRecord[0].startsWith(samRecord.qname, 1)) { // the "1" accounts for the "@" in the FASTQ that is not in the SAM
@@ -127,6 +128,7 @@ public class CreateInsertion {
                                             System.out.println();
                                         }
                                         fastqRecord[1] = newSequence;
+                                        samRecord.used = true;
                                     }
                                 }
                             }

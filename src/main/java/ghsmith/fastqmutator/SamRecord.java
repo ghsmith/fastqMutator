@@ -19,6 +19,8 @@ public class SamRecord {
     
     public Insert insert;
     
+    public Boolean used;
+    
     public SamRecord(String samLine, List<Insert> inserts) {
         
         String[] fields = samLine.split("\t");
@@ -41,6 +43,8 @@ public class SamRecord {
                 this.insert = insert;
             }
         }
+        
+        used = false;
         
     }
     
