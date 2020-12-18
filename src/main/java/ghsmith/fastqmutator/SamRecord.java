@@ -14,10 +14,13 @@ public class SamRecord {
     public Integer pos;
     public String cigar;
     public String seq;
+
+    public String lane;
     
     public Insert insert;
     
     public SamRecord(String samLine, List<Insert> inserts) {
+        
         String[] fields = samLine.split("\t");
         qname = fields[0];
         flag = Integer.valueOf(fields[1]);
@@ -25,6 +28,9 @@ public class SamRecord {
         pos = Integer.valueOf(fields[3]);
         cigar = fields[5];
         seq = fields[9];
+        
+        lane = qname.split(":")[3];
+        
         for(Insert insert : inserts) {
             if(
                 this.simpleLength() != null
@@ -35,6 +41,7 @@ public class SamRecord {
                 this.insert = insert;
             }
         }
+        
     }
     
     public boolean isProperlyAligned() {

@@ -63,6 +63,7 @@ public class CreateInsertion {
                 @Override
                 public void run() {
                     try {
+                        String fileLane = fastqFileName.split("_")[2].replaceAll("L000", "");
                         Boolean read1File = fastqFileName.contains("_R1_");
                         Boolean read2File = fastqFileName.contains("_R2_");
                         BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName), 52428800);
@@ -73,8 +74,11 @@ public class CreateInsertion {
                             fastqRecord[2] = fastqReader.readLine();
                             fastqRecord[3] = fastqReader.readLine();
                             for(SamRecord samRecord : samRecords) {
-                                if((samRecord.isFirstSegment() && read1File) || (samRecord.isLastSegment() && read2File)) {
-                                    if(fastqRecord[0].substring(1, fastqRecord[0].indexOf(' ')).equals(samRecord.qname)) {
+                                if(
+                                    samRecord.lane.equals(fileLane)
+                                    && ((samRecord.isFirstSegment() && read1File) || (samRecord.isLastSegment() && read2File))
+                                ) {
+                                    if(fastqRecord[0].startsWith(samRecord.qname, 1)) { // the "1" accounts for the "@" in the FASTQ that is not in the SAM
                                         assert samRecord.seq.equals(samRecord.isReverseComplement() ? reverseComplement(fastqRecord[1]) : fastqRecord[1]);
                                         String newSequence = String.format("%s%s%s",
                                             samRecord.seq.substring(0, samRecord.insert.position - samRecord.pos),
@@ -108,7 +112,7 @@ public class CreateInsertion {
                                         }
                                         synchronized(readCountMatched) {
                                             readCountMatched[0]++;
-                                            System.out.println(String.format("[%5d/%5d %2d] %s : %s", readCountMatched[0], readCountTotal[0], Math.round(readCountMatched[0]/readCountTotal[0]), fastqFileName, samRecord.qname));
+                                            System.out.println(String.format("[%5d/%5d %2d%%] %s : %s", readCountMatched[0], readCountTotal[0], Math.round(100f * readCountMatched[0]/readCountTotal[0]), fastqFileName, samRecord.qname));
                                             System.out.println(String.format("...rname   : %s", samRecord.rname));
                                             System.out.println(String.format("...position: %s", samRecord.pos));
                                             System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
