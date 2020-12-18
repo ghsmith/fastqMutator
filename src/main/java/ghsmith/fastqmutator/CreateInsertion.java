@@ -65,8 +65,8 @@ public class CreateInsertion {
                     try {
                         Boolean read1File = fastqFileName.contains("_R1_");
                         Boolean read2File = fastqFileName.contains("_R2_");
-                        BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName), 536870912);
-                        BufferedWriter fastqWriter = new BufferedWriter(new FileWriter(new File("mutated-" + fastqFileName)), 536870912);
+                        BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName), 52428800);
+                        BufferedWriter fastqWriter = new BufferedWriter(new FileWriter(new File("mutated-" + fastqFileName)), 52428800);
                         String[] fastqRecord = new String[4];
                         while((fastqRecord[0] = fastqReader.readLine()) != null) {
                             fastqRecord[1] = fastqReader.readLine();
@@ -107,7 +107,8 @@ public class CreateInsertion {
                                             }
                                         }
                                         synchronized(readCountMatched) {
-                                            System.out.println(String.format("[%5d/%5d] %s : %s", ++readCountMatched[0], readCountTotal[0], fastqFileName, samRecord.qname));
+                                            readCountMatched[0]++;
+                                            System.out.println(String.format("[%5d/%5d %2d] %s : %s", readCountMatched[0], readCountTotal[0], Math.round(readCountMatched[0]/readCountTotal[0]), fastqFileName, samRecord.qname));
                                             System.out.println(String.format("...rname   : %s", samRecord.rname));
                                             System.out.println(String.format("...position: %s", samRecord.pos));
                                             System.out.println(String.format("...rev comp: %s", samRecord.isReverseComplement()));
