@@ -65,7 +65,7 @@ public class CreateInsertion {
                         Boolean read1File = fastqFileName.contains("_R1_");
                         Boolean read2File = fastqFileName.contains("_R2_");
                         BufferedReader fastqReader = new BufferedReader(new FileReader(fastqFileName));
-                        PrintWriter fastqWriter = new PrintWriter(new FileWriter(new File(fastqFileName.replaceAll(".fastq$", ".mutated.fastq"))));
+                        PrintWriter fastqWriter = new PrintWriter(new FileWriter(new File("mutated-" + fastqFileName)));
                         String[] fastqRecord = new String[4];
                         while((fastqRecord[0] = fastqReader.readLine()) != null) {
                             fastqRecord[1] = fastqReader.readLine();
